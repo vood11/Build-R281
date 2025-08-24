@@ -458,6 +458,13 @@ jobs:
           path: ${{ env.OPENWRT_ROOT_PATH }}/bin
           retention-days: 7
 
+      - name: Archive Source Code
+        if: ${{ env.FIRMWARE_RELEASE == 'true' }}
+        run: |
+          cd workspace
+          tar -czf openwrt-source-${{ env.BUILD_DATE }}.tar.gz openwrt
+          mv openwrt-source-*.tar.gz ../
+
       - name: Organize Files
         if: ${{ env.FIRMWARE_RELEASE == 'true' }}
         run: |
@@ -473,7 +480,9 @@ jobs:
           name: ${{ env.SOURCE_REPO }}_${{ env.SOURCE_BRANCH }}_${{ env.DEVICE_NAME }}
           commit: ${{ env.CURRENT_BRANCH }}
           tag: ${{ env.SOURCE_REPO }}_${{ env.SOURCE_BRANCH }}_${{ env.DEVICE_NAME }}
-          artifacts: ${{ env.OPENWRT_ROOT_PATH }}/bin/targets/${{ env.DEVICE_TARGET }}/${{ env.DEVICE_SUBTARGET }}/*
+          artifacts: |
+            ${{ env.OPENWRT_ROOT_PATH }}/bin/targets/${{ env.DEVICE_TARGET }}/${{ env.DEVICE_SUBTARGET }}/*
+            openwrt-source-*.tar.gz
           replacesArtifacts: true
           allowUpdates: true
           prerelease: false
